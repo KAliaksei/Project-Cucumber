@@ -2,14 +2,16 @@ from lxml import html #import librarie
 import requests #import librarie
 import xlrd, xlwt #import librarie
 def directory():
-    userchoice = int(input("\nPlease type the number appropriate to your wanted function, select 0 for all available functions"))
-    if userchoice == 0:
-        print("Select 1 to find up to date individual stock information")
-        print("Select 2 to view your portfolio")
-        usermenupick(int(input("Select a function")))
-    else:
-        usermenupick(userchoice)
-
+    try:
+        userchoice = int(input("\nPlease type the number appropriate to your wanted function, select 0 for all available functions"))
+        if userchoice == 0:
+            print("Select 1 to find up to date individual stock information")
+            print("Select 2 to view your portfolio")
+            usermenupick(int(input("Select a function")))
+        else:
+            usermenupick(userchoice)
+    except:
+        print("Invalid input")
 def usermenupick(value):
     if value == 1:
         initialsearch = str(input("\nWhat is the name of the company?"))
