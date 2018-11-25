@@ -2,6 +2,9 @@ from lxml import html #import librarie
 import requests #import librarie
 import xlrd, xlwt #import librarie
 from openpyxl import *
+from tkinter import *
+from tkinter import ttk
+
 def directory():
     intitialportfolio()
     try:
@@ -41,6 +44,8 @@ def search(stockticker): # definiton of seach function
     global price
     price = tree.xpath('//span[@class="Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)"]/text()')
     #description = tree.xpath('//p[@class="description__text"]/text()')
+    global day_low
+    global low_high
     day_low = tree.xpath('//span[@class="Trsdu(0.3s) "]/text()')
     low_high = tree.xpath('//td[@class="Ta(end) Fw(b) Lh(14px)"]/text()')
     #print('Description: ', description)
@@ -50,7 +55,10 @@ def search(stockticker): # definiton of seach function
     mportfolio = portfolio
     if stockticker not in mportfolio:
         searchaddtoportfolio(stockticker)
-
+    global low_high_split
+    low_high_split = low_high[0].split()
+    print(low_high_split[2])
+    return price, day_low, low_high_split
 def intitialportfolio():
     global portfolio
     portfolio = []
@@ -65,6 +73,22 @@ def intitialportfolio():
             portfolio.append(cell)
 
 
+
+
+
+def clicked():
+    #pulls up info
+    gosearch(txt.get())
+    lbl1.configure(text = (txt.get()).title())
+    currentP.configure(text = price)
+    OpenP.configure(text = day_low[1])
+    DayLow.configure(text = low_high_split[0])
+    DayHigh.configure(text= low_high_split[2])
+
+
+def addPort():
+    #Adds searched stock to portfolio
+    pass
 
 def gosearch(a):
     usersearch = a.title()
@@ -125,8 +149,9 @@ def myportfolio():
             portfolio.append(cell)
 
 
-while 1 == 1:
-    directory()
+#while 1 == 1:
+#    directory()
+
 
 
 ##    wallet = int(input("Enter your initial investment amount"))
@@ -142,6 +167,51 @@ while 1 == 1:
 ##    #USER SHOULD BE ABLE TO SELECT BEWTWEEN ALL THEIR PORFOLIOS
 ##    
 ##def userportfolio(portfolio):
-##    for name in portfolio: 
+##    for name in portfolio:
 
-    
+
+
+master = Tk()
+# master.iconbitmap('Cucumber')
+master.title('Cucumber')
+tab_control = ttk.Notebook(master)
+tab1 = ttk.Frame(tab_control)
+tab2 = ttk.Frame(tab_control)
+tab3 = ttk.Frame(tab_control)
+tab_control.add(tab1, text='Search')
+tab_control.add(tab2, text='Portfolio')
+tab_control.add(tab3, text='Watchlist')
+tab_control.grid(column=0,row=0)
+
+
+lbl1 = Label(tab1, text='')
+lbl1.grid(column=3, row=0)
+currentP = Label(tab1, text='')
+currentPLabel = Label(tab1, text=' Current Price:')
+currentPLabel.grid(column=3, row=1)
+currentP.grid(column=4, row=1)
+OpenP = Label(tab1, text='')
+OpenP.grid(column=4, row=2)
+OpenPLabel = Label(tab1, text='Opening Price:')
+OpenPLabel.grid(column=3, row=2)
+DayLow = Label(tab1, text='')
+DayLow.grid(column=4, row=3)
+DayLowLabel = Label(tab1, text='Daily Low:')
+DayLowLabel.grid(column=3, row=3)
+DayHigh = Label(tab1, text='')
+DayHigh.grid(column=4, row=4)
+DayHighLabel = Label(tab1, text='Daily High:')
+DayHighLabel.grid(column=3, row=4)
+lbl = Label(tab1, text='Hello, Please enter the stock ticker or company name')
+lbl.grid(column=2, row=1)
+txt = Entry(tab1, width=10)
+txt.grid(column=2, row=2)
+lbl3 = Label(tab3, text='Feature still in development')
+lbl3.grid(column=0,row=0)
+
+btn = Button(tab1, text='Search', command=clicked)
+btn.grid(column=2, row=3)
+PortfolioBtn = Button(tab1, text='Add to Portfolio', command=addPort)
+PortfolioBtn.grid(column=2,row=4)
+
+master.mainloop()
