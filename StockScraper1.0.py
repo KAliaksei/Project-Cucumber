@@ -3,6 +3,7 @@ import requests #import librarie
 import xlrd, xlwt #import librarie
 from openpyxl import *
 def directory():
+    intitialportfolio()
     try:
         userchoice = int(input("\nPlease type the number appropriate to your wanted function, select 0 for all available functions"))
         if userchoice == 0:
@@ -37,18 +38,20 @@ def search(stockticker): # definiton of seach function
     print(url)
     urlopen = requests.get(url, headers = headers)
     tree = html.fromstring(urlopen.content, "lxml")
+    global price
     price = tree.xpath('//span[@class="Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)"]/text()')
     #description = tree.xpath('//p[@class="description__text"]/text()')
     day_low = tree.xpath('//span[@class="Trsdu(0.3s) "]/text()')
     low_high = tree.xpath('//td[@class="Ta(end) Fw(b) Lh(14px)"]/text()')
     #print('Description: ', description)
-    print('Current stock price: $',price[0])
+    print('Current stock price: $', price[0])
     print('Open stock price: $', day_low[1])
     print("Today's high and low prices: Low", low_high[0], 'High')
-    if stockticker not in portfolio:
+    mportfolio = portfolio
+    if stockticker not in mportfolio:
         searchaddtoportfolio(stockticker)
 
-def myportfolio():
+def intitialportfolio():
     global portfolio
     portfolio = []
     workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand=True)
@@ -58,8 +61,10 @@ def myportfolio():
     row_count = worksheet.nrows
     if row_count != 0:
         for i in range(worksheet.nrows):
-            cell = worksheet.cell(i,0).value
+            cell = worksheet.cell(i, 0).value
             portfolio.append(cell)
+
+
 
 def gosearch(a):
     usersearch = a.title()
@@ -105,12 +110,23 @@ def addtoportfolio():
 
 #def myportfolio():
  #   portfolio = []
+###WATCHLIST###
+def myportfolio():
+    global portfolio
+    portfolio = []
+    workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand=True)
+    global row_count
+    worksheet = workbook.sheet_by_index(1)
+    global row_count
+    row_count = worksheet.nrows
+    if row_count != 0:
+        for i in range(worksheet.nrows):
+            cell = worksheet.cell(i,0).value
+            portfolio.append(cell)
 
 
 while 1 == 1:
     directory()
-
-
 
 
 ##    wallet = int(input("Enter your initial investment amount"))
