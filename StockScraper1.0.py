@@ -5,8 +5,26 @@ from openpyxl import *
 from tkinter import *
 from tkinter import ttk
 
+def gosearch(a):
+    usersearch = a.title()
+    print(usersearch)
+    workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand=True)
+    worksheet = workbook.sheet_by_index(0)
+    i = 0
+    g = 0
+    counter = 0
+    for i in range(worksheet.nrows):
+        if usersearch in worksheet.cell(i,1).value:
+            global ticker
+            ticker = worksheet.cell_value(i,0)
+            print("Your company is: ", worksheet.cell_value(i,1))
+            search(ticker)
+        else:
+            counter += 1
+        if counter == 3312:
+            print("Company not found")
+
 def directory():
-    intitialportfolio()
     try:
         userchoice = int(input("\nPlease type the number appropriate to your wanted function, select 0 for all available functions"))
         if userchoice == 0:
@@ -52,9 +70,10 @@ def search(stockticker): # definiton of seach function
     print('Current stock price: $', price[0])
     print('Open stock price: $', day_low[1])
     print("Today's high and low prices: Low", low_high[0], 'High')
-    mportfolio = portfolio
-    if stockticker not in mportfolio:
-        searchaddtoportfolio(stockticker)
+    myportfolio()
+    if stockticker not in portfolio:
+        PortfolioBtn = Button(tab1, text='Add to Portfolio', command=searchaddtoportfolio(ticker))
+        PortfolioBtn.grid(column=2,row=4)
     global low_high_split
     low_high_split = low_high[0].split()
     print(low_high_split[2])
@@ -86,40 +105,19 @@ def clicked():
     DayHigh.configure(text= low_high_split[2])
 
 
-def addPort():
-    #Adds searched stock to portfolio
-    pass
 
-def gosearch(a):
-    usersearch = a.title()
-    print(usersearch)
-    workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand=True)
-    worksheet = workbook.sheet_by_index(0)
-    i = 0
-    g = 0
-    counter = 0
-    for i in range(worksheet.nrows):
-        if usersearch in worksheet.cell(i,1).value:
-            ticker = worksheet.cell_value(i,0)
-            print("Your company is: ", worksheet.cell_value(i,1))
-            search(ticker)
-        else:
-            counter += 1
-        if counter == 3312:
-            print("Company not found")
 
 def searchaddtoportfolio(stockticker):
-    userchoice = int(input("Would you like to add this stock to your portfolio?\n 1 - Yes. 2 - No"))
-    if userchoice == 1:
-        wb = load_workbook(filename='CompanyFile.xlsx')
-        sheet_ranges = wb['Sheet2']
-        i = row_count
-        if i == 0:
-            sheet_ranges.cell(1, 1).value = stockticker
-            wb.save('CompanyFile.xlsx')
-        else:
-            sheet_ranges.cell(i+1, 1).value = stockticker
-            wb.save('CompanyFile.xlsx')
+    wb = load_workbook(filename='CompanyFile.xlsx')
+    sheet_ranges = wb['Sheet2']
+    i = row_count
+    print(row_count)
+    if i == 1:
+        sheet_ranges.cell(2, 1).value = stockticker
+        wb.save('CompanyFile.xlsx')
+    else:
+        sheet_ranges.cell(i+1, 1).value = stockticker
+        wb.save('CompanyFile.xlsx')
 
 def addtoportfolio():
     searchtype = int(input("To search by ticker select 1 \n To search by company name select 2"))
@@ -143,10 +141,15 @@ def myportfolio():
     worksheet = workbook.sheet_by_index(1)
     global row_count
     row_count = worksheet.nrows
+    print('my portolio', row_count)
     if row_count != 0:
         for i in range(worksheet.nrows):
             cell = worksheet.cell(i,0).value
             portfolio.append(cell)
+    portfolioBox = Listbox(tab2)
+    portfolioBox.grid(column=0, row=0)
+    for item in portfolio:
+        portfolioBox.insert(END, item)
 
 
 #while 1 == 1:
@@ -165,11 +168,11 @@ def myportfolio():
 ##    #ALEC IS DOING THIS
 ##    #ART STUFF TO DISPLAY THE USERS PORTFOLIO
 ##    #USER SHOULD BE ABLE TO SELECT BEWTWEEN ALL THEIR PORFOLIOS
-##    
+##
 ##def userportfolio(portfolio):
 ##    for name in portfolio:
 
-
+intitialportfolio()
 
 master = Tk()
 # master.iconbitmap('Cucumber')
@@ -211,7 +214,8 @@ lbl3.grid(column=0,row=0)
 
 btn = Button(tab1, text='Search', command=clicked)
 btn.grid(column=2, row=3)
-PortfolioBtn = Button(tab1, text='Add to Portfolio', command=addPort)
-PortfolioBtn.grid(column=2,row=4)
-
+portfolioBox = Listbox(tab2)
+portfolioBox.grid(column=0,row=0)
+for item in portfolio:
+    portfolioBox.insert(END, item)
 master.mainloop()
