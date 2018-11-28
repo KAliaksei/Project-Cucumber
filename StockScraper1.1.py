@@ -29,7 +29,7 @@ def search(stockticker): # definiton of seach function
     print('Open stock price: $', day_low[1])
     print("Today's high and low prices: Low", low_high[0], 'High')
     myportfolio()
-    if stockticker not in portfoliooftickers:
+    if stockticker not in portfoliotickerlist:
         PortfolioBtn = Button(tab1, text='Add to Portfolio', command=searchaddtoportfolio(ticker))
         PortfolioBtn.grid(column=2,row=4)
         myportfolio()
@@ -79,36 +79,53 @@ def clicked():
 
 def initialportfolio():
     global portfolio
-    global portfoliooftickers
-    portfoliooftickers = []
+    global portfoliovalue
+    global portfoliotickerlist
     portfolio = []
+    portfoliovalue = []
+    portfoliotickerlist = []
     workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand=True)
     global row_count
-    worksheet = workbook.sheet_by_index(1)
+    pworksheet = workbook.sheet_by_index(1)
     global row_count
-    row_count = worksheet.nrows
+    row_count = pworksheet.nrows
     if row_count != 0:
-        for i in range(worksheet.nrows):
-            tickercell = worksheet.cell(i, 0).value
-            companycell = worksheet.cell(i,1).value
+        for i in range(pworksheet.nrows):
+            tickercell = pworksheet.cell(i, 0).value
+            companycell = pworksheet.cell(i, 1).value
             cellinput = companycell, tickercell
+            portfoliotickerlist.append(tickercell)
             portfolio.append(cellinput)
-            portfoliooftickers.append(tickercell)
+        for i in range(pworksheet.nrows-1):
+            stockvalue = pworksheet.cell(i+1, 2).value
+            if stockvalue != '':
+                portfoliovalue.append(float(stockvalue))
 
 def myportfolio():
     global portfolio
+    global portfoliovalue
+    global portfoliotickerlist
     portfolio = []
+    portfoliovalue = []
+    portfoliotickerlist = []
     workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand=True)
     global row_count
-    worksheet = workbook.sheet_by_index(1)
+    pworksheet = workbook.sheet_by_index(1)
     global row_count
-    row_count = worksheet.nrows
+    row_count = pworksheet.nrows
     if row_count != 0:
-        for i in range(worksheet.nrows):
-            tickercell = worksheet.cell(i, 0).value
-            companycell = worksheet.cell(i, 1).value
+        for i in range(pworksheet.nrows):
+            tickercell = pworksheet.cell(i, 0).value
+            companycell = pworksheet.cell(i, 1).value
             cellinput = companycell, tickercell
+            portfoliotickerlist.append(tickercell)
             portfolio.append(cellinput)
+        for i in range(pworksheet.nrows - 1):
+            stockvalue = pworksheet.cell(i + 1, 2).value
+            if stockvalue != '':
+                portfoliovalue.append(float(stockvalue))
+                print(portfoliovalue)
+                print(sum(portfoliovalue))
     portfolioBox = Listbox(tab2)
     portfolioBox.grid(column=0, row=0)
     for item in portfolio:
@@ -142,11 +159,16 @@ def searchaddtoportfolio(stockticker):
 
 def setwalletvalue():
     global walletvalue
-    wb = load_workbook(filename='CompanyFile.xlsx')
-    sheet_ranges = wb['Sheet3']
-    walletvalue = int(input("Enter your initial deposit amount."))
-    sheet_ranges.cell(1, 1).value = walletvalue
-    wb.save('CompanyFile.xlsx')
+    try:
+        wb = load_workbook(filename='CompanyFile.xlsx')
+        sheet_ranges = wb['Sheet3']
+        walletvalue = int(input("Enter your initial deposit amount."))
+        sheet_ranges.cell(1, 1).value = walletvalue
+        wb.save('CompanyFile.xlsx')
+        initialwalletvalue()
+    except:
+        1 == 1
+    return walletvalue
 
 def initialwalletvalue():
     global walletvalue
@@ -160,6 +182,10 @@ def initialwalletvalue():
         walletvalue = int(input("Enter your initial deposit amount."))
         sheet_ranges.cell(1, 1).value = walletvalue
         wb.save('CompanyFile.xlsx')
+    lbl4 = Label(tab4, text='Your wallet is $%.2f' % walletvalue)
+    lbl4.grid(column=0, row=0)
+    lbl5 = Label(tab4, text='Your portfolio value is $%.2f' % sum(portfoliovalue))
+    lbl5.grid(column=3, row=0)
 
 def editwalletvalue(cost,walletvalue):
     wb = load_workbook(filename='CompanyFile.xlsx')
@@ -171,6 +197,7 @@ def editwalletvalue(cost,walletvalue):
 def buystock():
     count = int(input("How much stock do you want to buy?"))
     buystockammountcheck(count)
+
 def buystockammountcheck(count):
     global stockprice
     stockprice = float(price[0].replace(",",""))
@@ -183,14 +210,15 @@ def buystockammountcheck(count):
         print("You have insufficient funds to buy 1 share of", company_name+".")
     elif newcount > 0:
         buypromt(count,newcount,cost, walletvalue)
+
 def buypromt(count,newcount,cost, walletvalue):
     if count == newcount:
         print("Press 1 to purchase", count, "shares of", company_name + ".")
-        userchoice = int(input("Enter Now"))
+        userchoice = int(input())
     elif count != newcount:
         print("You can only purchase", newcount, "share(s) of", company_name+".")
         print("Press 1 to purchase", newcount, "share(s) of", company_name + ".")
-        userchoice = int(input("Enter Now"))
+        userchoice = int(input())
     if userchoice == 1:
         editwalletvalue(cost,walletvalue)
         wb = load_workbook(filename='CompanyFile.xlsx')
@@ -204,6 +232,8 @@ def buypromt(count,newcount,cost, walletvalue):
         sheet_ranges.cell(i, 3).value = cost
         sheet_ranges.cell(i, 4).value = newcount
         wb.save('CompanyFile.xlsx')
+    myportfolio()
+    initialwalletvalue()
 
 
 ##    wallet = int(input("Enter your initial investment amount"))
@@ -220,7 +250,8 @@ def buypromt(count,newcount,cost, walletvalue):
 
 
 ###RUNNING CODE###
-initialwalletvalue()
+
+
 initialportfolio()
 
 master = Tk()
@@ -256,14 +287,12 @@ DayHigh = Label(tab1, text='')
 DayHigh.grid(column=4, row=4)
 DayHighLabel = Label(tab1, text='Daily High:')
 DayHighLabel.grid(column=3, row=4)
-lbl = Label(tab1, text='Hello, Please enter the stock ticker or company name')
+lbl = Label(tab1, text='Please enter the stock ticker or company name')
 lbl.grid(column=2, row=1)
 txt = Entry(tab1, width=10)
 txt.grid(column=2, row=2)
 lbl3 = Label(tab3, text='Feature still in development')
 lbl3.grid(column=0,row=0)
-lbl4 = Label(tab4, text='Your wallet is %s' % walletvalue)
-lbl4.grid(column=0,row=0)
 tab4btn = Button(tab4, text='Update Wallet', command=setwalletvalue)
 tab4btn.grid(column=0, row=3)
 searchbtn = Button(tab1, text='Search', command=clicked)
@@ -272,6 +301,9 @@ portfolioBox = Listbox(tab2)
 portfolioBox.grid(column=0,row=0)
 for item in portfolio:
     portfolioBox.insert(END,item)
+addtoportfoliobtn = Button(tab2, text='Add New Company', command=addtoportfolio)
+addtoportfoliobtn.grid(column=2, row=0)
+initialwalletvalue()
 master.mainloop()
 
 ###DIRECTORY CODE###
