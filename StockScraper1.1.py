@@ -28,7 +28,6 @@ def search(stockticker): # definiton of seach function
     print('Current stock price: $', price[0])
     print('Open stock price: $', day_low[1])
     print("Today's high and low prices: Low", low_high[0], 'High')
-    myportfolio()
     if stockticker not in portfoliotickerlist:
         PortfolioBtn = Button(tab1, text='Add to Portfolio', command=searchaddtoportfolio(ticker))
         PortfolioBtn.grid(column=2,row=4)
