@@ -1,4 +1,3 @@
-
 from lxml import html  # import librarie
 import requests  # import librarie
 import xlrd, xlwt  # import librarie
@@ -65,7 +64,7 @@ def gosearch(companyname):
 
 ###TK CODE###
 
-def clicked():
+def clicked(event=None):
     # pulls up info
     gosearch(txt.get())
     lbl1.configure(text=company_name)
@@ -279,6 +278,10 @@ def costchange():
         wb.save('CompanyFile.xlsx')
 
 ### GUI ###
+def popUp():
+    s = simpledialog.askstring('Intput String', 'Please enter your wallet amount')
+    setwalletvalue(int(s))
+
 def hello():
     print("hello")
 
@@ -356,6 +359,7 @@ tab4btn = Button(tab4, text='Update Wallet', command=setwalletvalue)
 tab4btn.grid(column=0, row=3)
 searchbtn = Button(tab1, text='Search', command=clicked)
 searchbtn.grid(column=2, row=3)
+master.bind('<Return>', clicked)
 portfolioBox = Listbox(tab2)
 portfolioBox.grid(column=0, row=0)
 portfolioBox.bind('<<ListboxSelect>>',onselect)
