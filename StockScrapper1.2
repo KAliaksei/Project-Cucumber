@@ -5,6 +5,7 @@ import xlrd, xlwt  # import librarie
 from openpyxl import *
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 
 
 ###ONLINE SEARCH FUNCTION###
@@ -14,9 +15,7 @@ def search(stockticker):  # definiton of seach function
     headers.update({
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:20.0) Gecko/20100101 Firefox/20.0',
     })
-    print('Stock ticker: ', stockticker)
     url = ("https://finance.yahoo.com/quote/%s" % stockticker)
-    print(url)
     urlopen = requests.get(url, headers=headers)
     tree = html.fromstring(urlopen.content, "lxml")
     global price
@@ -27,14 +26,10 @@ def search(stockticker):  # definiton of seach function
     day_low = tree.xpath('//span[@class="Trsdu(0.3s) "]/text()')
     low_high = tree.xpath('//td[@class="Ta(end) Fw(b) Lh(14px)"]/text()')
     # print('Description: ', description)
-    print('Current stock price: $', price[0])
-    print('Open stock price: $', day_low[1])
-    print("Today's high and low prices: Low", low_high[0], 'High')
-    myportfolio()
     if stockticker not in portfoliotickerlist:
         PortfolioBtn = Button(tab1, text='Add to Portfolio', command=searchaddtoportfolio(ticker))
         PortfolioBtn.grid(column=2, row=4)
-        myportfolio()
+    myportfolio()
     addtoportfoliobtn = Button(tab1, text='Buy Stock', command=buystock)
     addtoportfoliobtn.grid(column=2, row=5)
     lbl4 = Label(tab4, text='Your wallet is %s' % walletvalue)
@@ -45,12 +40,12 @@ def search(stockticker):  # definiton of seach function
 
 
 ###COMPANY SEARCH FUNCTION###
+def portfolioworth():
+    global portfolio
 
 def gosearch(companyname):
     usersearch = companyname.title()
     global company_name
-    company_name = usersearch
-    print(usersearch)
     workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand=True)
     worksheet = workbook.sheet_by_index(0)
     i = 0
@@ -60,8 +55,8 @@ def gosearch(companyname):
         if usersearch in worksheet.cell(i, 1).value:
             global ticker
             ticker = worksheet.cell_value(i, 0)
-            print("Your company is: ", worksheet.cell_value(i, 1))
             search(ticker)
+            company_name = worksheet.cell_value(i, 1)
         else:
             counter += 1
         if counter == 3312:
@@ -73,7 +68,7 @@ def gosearch(companyname):
 def clicked():
     # pulls up info
     gosearch(txt.get())
-    lbl1.configure(text=(txt.get()).title())
+    lbl1.configure(text=company_name)
     currentP.configure(text=price)
     OpenP.configure(text=day_low[1])
     DayLow.configure(text=low_high_split[0])
@@ -150,16 +145,16 @@ def addtoportfolio():
         # validate company\
 
 
-def searchaddtoportfolio(stockticker):
+def searchaddtoportfolio(ticker):
     wb = load_workbook(filename='CompanyFile.xlsx')
     sheet_ranges = wb['Sheet2']
     i = row_count
     if i == 1:
-        sheet_ranges.cell(2, 1).value = stockticker
+        sheet_ranges.cell(2, 1).value = ticker
         sheet_ranges.cell(2, 2).value = company_name
         wb.save('CompanyFile.xlsx')
     else:
-        sheet_ranges.cell(i + 1, 1).value = stockticker
+        sheet_ranges.cell(i + 1, 1).value = ticker
         sheet_ranges.cell(i + 1, 2).value = company_name
         wb.save('CompanyFile.xlsx')
 
@@ -239,32 +234,83 @@ def buypromt(count, newcount, cost, walletvalue):
         sheet_ranges = wb['Sheet2']
         i = row_count
     if i == 1:
+        sheet_ranges.cell(1, 4).value = float(price[0].replace(",", ""))
         sheet_ranges.cell(1, 3).value = cost
-        sheet_ranges.cell(1, 4).value = newcount
+        sheet_ranges.cell(1, 5).value = newcount
         wb.save('CompanyFile.xlsx')
     else:
+        sheet_ranges.cell(i, 4).value = float(price[0].replace(",", ""))
         sheet_ranges.cell(i, 3).value = cost
-        sheet_ranges.cell(i, 4).value = newcount
+        sheet_ranges.cell(i, 5).value = newcount
         wb.save('CompanyFile.xlsx')
     myportfolio()
     initialwalletvalue()
 
+###PORTFOLIO_TRACKER###
 
-##    wallet = int(input("Enter your initial investment amount"))
-##    def addcompany():
-##        newcompany = input("Enter company name")
-##        portfolio.append(name)
-##        #search(name)
-##        return portfolio
-##    return portfolio
-##def showportfolio():
-##    #ALEC IS DOING THIS
-##    #ART STUFF TO DISPLAY THE USERS PORTFOLIO
-##    #USER SHOULD BE ABLE TO SELECT BEWTWEEN ALL THEIR PORFOLIOS
+def percentchangesearch(stockticker):
+    headers = requests.utils.default_headers()
+    headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:20.0) Gecko/20100101 Firefox/20.0',
+    })
+    url = ("https://finance.yahoo.com/quote/%s" % stockticker)
+    urlopen = requests.get(url, headers=headers)
+    tree = html.fromstring(urlopen.content, "lxml")
+    xprice = tree.xpath('//span[@class="Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)"]/text()')
+    xprice = float(xprice[0].replace(",", ""))
+    print("hi")
+    return(float(xprice))
 
+def costchange():
+    workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand=True)
+    worksheet = workbook.sheet_by_index(1)
+    wb = load_workbook(filename='CompanyFile.xlsx')
+    worksheet1 = wb['Sheet2']
+    for num in range(worksheet.nrows-1):
+        companyname = worksheet1.cell(num+2,2).value
+        companyticker = worksheet1.cell(num+2,1).value
+        sharesowned = int(worksheet1.cell(num+2,5).value)
+        costowned = float(worksheet1.cell(num+2,3).value)
+        currentcost = percentchangesearch(companyticker)*sharesowned
+        pricechange = (percentchangesearch(companyticker)*sharesowned)-(costowned)
+        percentchange = pricechange/costowned
+        worksheet1.cell(num+2, 6).value = percentchange
+        worksheet1.cell(num+2, 7).value = pricechange
+        wb.save('CompanyFile.xlsx')
 
-###RUNNING CODE###
+### GUI ###
+def hello():
+    print("hello")
 
+def ptabdisplay(ticker):
+    gosearch(ticker)
+    ptablbl = Label(tab2, text=company_name)
+    ptablbl.grid(column=1, row=0)
+lastselectionList = []
+def onselect(evt):
+    #gosearch(str(value[0]))
+    #stocklabel = Label(tab2, text=company_name)
+    #stocklabel.grid(column=1,row=0)
+    # Note here that Tkinter passes an event object to onselect()
+    global lastselectionList
+    w = evt.widget
+    if lastselectionList:  # if not empty
+        # compare last selectionlist with new list and extract the difference
+        changedSelection = set(lastselectionList).symmetric_difference(set(w.curselection()))
+        lastselectionList = w.curselection()
+    else:
+        # if empty, assign current selection
+        lastselectionList = w.curselection()
+        changedSelection = w.curselection()
+    # changedSelection should always be a set with only one entry, therefore we can convert it to a lst and extract first entry
+    index = int(list(changedSelection)[0])
+    value = w.get(index)
+    messagebox.showinfo("You selected ", value)
+    ticker = str(value[0])
+    print(value)
+    hello()
+    ptabdisplay(ticker)
+costchange()
 
 initialportfolio()
 
@@ -312,8 +358,11 @@ searchbtn = Button(tab1, text='Search', command=clicked)
 searchbtn.grid(column=2, row=3)
 portfolioBox = Listbox(tab2)
 portfolioBox.grid(column=0, row=0)
+portfolioBox.bind('<<ListboxSelect>>',onselect)
 for item in portfolio:
     portfolioBox.insert(END, item)
+updateportfoliobtn = Button(tab2, text='Update', command=costchange)
+updateportfoliobtn.grid(column=0, row=3)
 addtoportfoliobtn = Button(tab2, text='Add New Company', command=addtoportfolio)
 addtoportfoliobtn.grid(column=0, row=2)
 initialwalletvalue()
