@@ -1,0 +1,32 @@
+def hello():
+    print("hello")
+
+def ptabdisplay(ticker):
+    gosearch(ticker)
+    ptablbl = Label(tab2, text=company_name)
+    ptablbl.grid(column=1, row=0)
+lastselectionList = []
+def onselect(evt):
+    #gosearch(str(value[0]))
+    #stocklabel = Label(tab2, text=company_name)
+    #stocklabel.grid(column=1,row=0)
+    # Note here that Tkinter passes an event object to onselect()
+    global lastselectionList
+    w = evt.widget
+    if lastselectionList:  # if not empty
+        # compare last selectionlist with new list and extract the difference
+        changedSelection = set(lastselectionList).symmetric_difference(set(w.curselection()))
+        lastselectionList = w.curselection()
+    else:
+        # if empty, assign current selection
+        lastselectionList = w.curselection()
+        changedSelection = w.curselection()
+    # changedSelection should always be a set with only one entry, therefore we can convert it to a lst and extract first entry
+    index = int(list(changedSelection)[0])
+    value = w.get(index)
+    messagebox.showinfo("You selected ", value)
+    ticker = str(value[0])
+    print(value)
+    hello()
+    ptabdisplay(ticker)
+costchange()
