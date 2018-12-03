@@ -26,7 +26,7 @@ def search(stockticker):  # definiton of seach function
     low_high = tree.xpath('//td[@class="Ta(end) Fw(b) Lh(14px)"]/text()')
     # print('Description: ', description)
     if stockticker not in portfoliotickerlist:
-        PortfolioBtn = Button(tab1, text='Add to Portfolio', command=searchaddtoportfolio(ticker))
+        PortfolioBtn = Button(tab1, text='Add to Portfolio', command=searchaddtoportfolio)
         PortfolioBtn.grid(column=2, row=4)
     myportfolio()
     addtoportfoliobtn = Button(tab1, text='Buy Stock', command=buystock)
@@ -144,7 +144,7 @@ def addtoportfolio():
         # validate company\
 
 
-def searchaddtoportfolio(ticker):
+def searchaddtoportfolio():
     wb = load_workbook(filename='CompanyFile.xlsx')
     sheet_ranges = wb['Sheet2']
     i = row_count
