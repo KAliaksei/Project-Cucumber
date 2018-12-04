@@ -1,3 +1,9 @@
+        sheet_ranges.cell(2, 8).value = day_low[1]
+        sheet_ranges.cell(2, 9).value = low_high_split[0]
+        sheet_ranges.cell(2, 10).value = low_high_split[2]
+        sheet_ranges.cell(2, 11).value = price[0]
+
+
 workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand = True)
     worksheet = workbook.sheet_by_index(1)
     wb = load_workbook(filename = 'CompanyFile.xlsx')
