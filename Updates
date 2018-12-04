@@ -1,4 +1,17 @@
-        sheet_ranges.cell(2, 8).value = day_low[1]
+def popupmsg(msg):
+    popup = Tk()
+    popup.wm_title('!')
+    label = ttk.Label(popup, text=msg)
+    label.pack(side='top', fill='x', pady=10)
+    B1 = ttk.Button(popup,text='Buy', command=stockPopUp)
+    B1.pack(side='left')
+    B2 = ttk.Button(popup, text='Sell', command = jokeUpPop)
+    B2.pack(side='right')
+    popup.mainloop()
+      
+       
+       
+       sheet_ranges.cell(2, 8).value = day_low[1]
         sheet_ranges.cell(2, 9).value = low_high_split[0]
         sheet_ranges.cell(2, 10).value = low_high_split[2]
         sheet_ranges.cell(2, 11).value = price[0]
