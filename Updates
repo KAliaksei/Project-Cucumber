@@ -1,3 +1,74 @@
+def initialportfolio():
+    global portfolio
+    global portfoliovalue
+    global portfoliotickerlist
+    portfolio = []
+    portfoliovalue = []
+    portfoliotickerlist = []
+    workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand=True)
+    global row_count
+    pworksheet = workbook.sheet_by_index(1)
+    global row_count
+    row_count = pworksheet.nrows
+    if row_count != 0:
+        for i in range(pworksheet.nrows):
+            tickercell = pworksheet.cell(i, 0).value
+            companycell = pworksheet.cell(i, 1).value
+            cellinput = companycell, tickercell
+            portfoliotickerlist.append(tickercell)
+            portfolio.append(cellinput)
+        for i in range(pworksheet.nrows - 1):
+            stockvalue = pworksheet.cell(i + 1, 2).value
+            if stockvalue != '':
+                portfoliovalue.append(float(stockvalue))
+    portfolioBox = Listbox(tab2)
+    portfolioBox.grid(column=0, row=0)
+    for item in portfolio:
+        portfolioBox.insert(END, item)
+
+
+def myportfolio():
+    global portfolio
+    global portfoliovalue
+    global portfoliotickerlist
+    portfolio = []
+    portfoliovalue = []
+    portfoliotickerlist = []
+    workbook = xlrd.open_workbook('CompanyFile.xlsx', on_demand=True)
+    global row_count
+    pworksheet = workbook.sheet_by_index(1)
+    global row_count
+    row_count = pworksheet.nrows
+    if row_count != 0:
+        for i in range(pworksheet.nrows):
+            tickercell = pworksheet.cell(i, 0).value
+            companycell = pworksheet.cell(i, 1).value
+            cellinput = companycell, tickercell
+            portfoliotickerlist.append(tickercell)
+            portfolio.append(cellinput)
+        for i in range(pworksheet.nrows - 1):
+            stockvalue = pworksheet.cell(i + 1, 2).value
+            if stockvalue != '':
+                portfoliovalue.append(float(stockvalue))
+    portfolioBox = Listbox(tab2)
+    portfolioBox.grid(column=0, row=0)
+    for item in portfolio:
+        portfolioBox.insert(END, item)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def onselect(evt):
     print("hi")
     index = int(portfolioBox.curselection()[0])
